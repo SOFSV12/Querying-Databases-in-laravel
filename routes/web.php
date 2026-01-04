@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+
+use App\Models\Comment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -43,3 +45,4 @@ Route::get('/', function () {
 
     dump($orm, $builder, $facade);
 });
+
