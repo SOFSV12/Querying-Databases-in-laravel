@@ -152,5 +152,32 @@ Route::get('/where-clause-query-two', function() {
     dump($users);
 });
 
+/**
+ * SQL CLAUSE PART 3
+ * you can creat a json columb which stores an array and use a specialized method called
+ * whereJsonContains to traverse the properties of the column
+ */
+Route::get('/where-clause-query-three', function(){
+    $filterMeta = DB::table('users')
+    ->whereJsonContains('meta->settings->site_language', 'en')
+    ->whereJsonContains('meta->skills', 'oop')
+    ->get();
+
+    dump($filterMeta);
+});
+
+/**
+ * lesson for pagination 
+ * items()
+ * provides you only the items with out the bulk of what paginate will retur'
+ * you also have simplePaginate()
+ */
+
+Route::get('/paginate', function(){
+    //  $comments = DB::table('comments')->paginate(3);
+    //we also have a simple paginate method
+    $comments = DB::table('comments')->simplePaginate(3);
+    dump($comments->items());
+});
 
 
