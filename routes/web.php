@@ -81,7 +81,7 @@ Route::get('/select-statement-query', function(){
  * where->([[first operation], [second operation]])
  * Both interpreted as where this and this 
 */
-Route::get('/where-clause-query', function(){
+Route::get('/where-clause-query-one', function(){
     $rooms = DB::table('rooms')->get();
 
     $lessThan = DB::table('rooms')->where('price', '<', 300)->get();
@@ -110,5 +110,47 @@ Route::get('/where-clause-query', function(){
 
     dump($conditions,$conditionAlternateSyntax);
 });
+
+/**
+ * WHERE CLAUSE PART 2 
+ * HERE I learnt that WhereColumn is quite powerful used to compare column in different tables 
+ * and whereRaw permits you to write raw sql, used the laravel documentation very helpful
+ */
+
+Route::get('/where-clause-query-two', function() {
+    $reservations = DB::table('reservations')->select('check_in', 'user_id', 'room_id')->get();
+
+    //we have whereBetween and whereNotBetween
+    $roomSize = DB::table('rooms')->whereBetween('room_size', [5, 100])->get();
+
+    //we have whereNotIn and whereIn
+    $excludeRecords = DB::table('rooms')->whereNotIn('id', [1,4,5,7,9,11,15,6,10,3])->get();
+
+    //below are other helper methods that are provided by laravel for querying
+    // whereNull('column')  whereNotNull
+    // whereDate('created_at', '2020-05-13')
+    // whereMonth('created_at', '5')
+    // whereDay('created_at', '13')
+    // whereYear('created_at', '2020')
+    // whereTime('created_at', '=', '12:25:10')
+    // whereColumn('column1', '>', 'column2')
+    // whereColumn([
+    //     ['first_name', '=', 'last_name'],
+    //     ['updated_at', '>', 'created_at']
+    // ]
+
+    $users = DB::table('users')->whereExists(function($query){
+        $query->select('id')->from('reservations')
+        ->whereRaw('reservations.user_id = users.id')
+        //whereColumn can do what where Raw wants to acheive
+        // ->whereColumn('reservations.user_id', 'users.id') 
+        ->where('check_in', '=', '2025-12-29')
+        ->limit(5);
+    })->get();
+
+
+    dump($users);
+});
+
 
 
