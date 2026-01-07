@@ -13,6 +13,7 @@ return new class extends Migration
     {
         schema::create('comments', function(Blueprint $table){
             $table->id();
+            $table->integer('ratings');
             $table->text('comments')->nullable(false);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();

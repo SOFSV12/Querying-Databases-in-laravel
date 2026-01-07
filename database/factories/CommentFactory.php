@@ -18,7 +18,8 @@ class CommentFactory extends Factory  // Singular!
     {
         return [
             'comments' => fake()->text(500),
-            'user_id' => fake()->numberBetween(1,3)
+            'ratings'  => fake()->numberBetween(1,5),
+            'user_id'  => fake()->numberBetween(1,3)
         ];
     }
 }
