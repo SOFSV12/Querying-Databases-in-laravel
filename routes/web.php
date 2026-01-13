@@ -6,6 +6,7 @@ use App\Models\Room;
 use App\Models\Comment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Database\Eloquent\Collection;
 
 Route::get('/', function () {
    
@@ -177,6 +178,7 @@ Route::get('/paginate', function(){
     //  $comments = DB::table('comments')->paginate(3);
     //we also have a simple paginate method
     $comments = DB::table('comments')->simplePaginate(3);
+    //returns just the paginated items
     dump($comments->items());
 });
 
@@ -198,6 +200,8 @@ Route::get('/fulltext-search', function(){
 
 /**
  * RAW SQL STATEMENTS
+ * Important note we should not use RAW so much because it could prevent queries from working 
+ * if you switch databases but eloquent will always work on diffrent databases
  */
 Route::get('/raw-sql-statements', function(){
     $comments = DB::table('comments')
@@ -261,3 +265,124 @@ Route::get('/sql-order-skip-take-group-by', function(){
     dump($skip);
 });
 
+
+/**
+ * CONDITIONAL CLAUSES AND CHUNKING Results
+ * 
+ * You were able to get a grasp of Chunk when and why to use it 
+ * Tou were also able to grasp the concept of when satement
+ */
+Route::get('/condional-clauses-chunking-results', function(){
+    $room_id = 2;
+
+   $reservations = DB::table('reservations')
+   ->when($room_id, function ($query, $room_id) {
+       return $query->where('room_id', $room_id);
+   })
+   ->get();
+
+   
+   $sort = 'room_size';
+   $sortby = DB::table('rooms')
+   ->when($sort, function ($query, $sort) {
+       return $query->orderBy($sort);
+   })
+   ->get();
+
+   
+   //chunking records
+    $count = 0;
+
+    // Count comments where user_id = 2
+    $chunk = DB::table('comments')
+            ->orderBy('id')
+            ->chunk(2, function ($comments) use (&$count) {
+                foreach ($comments as $comment) {
+                    if ($comment->user_id == 1) {
+                        $count++;
+                    }
+                }
+                // To stop chunking early (optional):
+                // if ($count >= 10) return false;
+            });
+
+    $chunky = DB::table('comments')
+              ->where('user_id', 1)
+              ->orderBy('id')
+              ->chunk(2, function ($comments) {
+                    $ids = $comments->pluck('id')->toArray();
+                    DB::table('comments')
+                    ->whereIn('id', $ids)
+                    ->update(['comments' => "Updated by Emmanuel Software"]);
+                });
+
+   dump($chunky);
+});
+
+
+/**
+ * DATABASE JOINS USING LARAVEL QUERY BUILDER
+ */
+
+Route::get('/join-clause', function (){
+
+});
+
+/**
+ * JOINS BASIC TO ADVANCED
+ */
+Route::get('/joins-basic-to-advanced', function(){
+    $join = DB::table('reservations')
+                ->join('rooms', 'reservations.room_id', '=', 'rooms.id')
+                ->join('users', 'reservations.user_id', '=', 'users.id')
+                //    ->where('rooms.id', '>=', 2)
+                //    ->where('users.id', '>', 1)
+                //alternate syntax same result
+                ->where([['rooms.id', '>=', 2], ['users.id', '>', 1]])
+                ->get();
+
+    $altSyntax = DB::table('reservations')
+                    ->join('rooms', function($join){
+                                $join->on('reservations.room_id', '=', 'rooms.id')
+                                ->where('rooms.id', '>=', 2);
+                    })
+                    ->join('users', function($join){
+                                $join->on('reservations.user_id', '=', 'users.id')
+                                ->where('users.id', '>', 1);
+                    })
+                    ->get();
+
+    $rooms = DB::table('rooms')
+                ->where('id', '>=', 2);
+    $users = DB::table('users')
+                ->where('id', '>', 1);
+    $diffSyntax = DB::table('reservations')
+                    ->joinSub($rooms, 'rooms', function($join){
+                        $join->on('reservations.room_id', '=', 'rooms.id');
+                    })
+                    ->joinSub($users, 'users', function($join){
+                        $join->on('reservations.user_id', '=', 'users.id');
+                    })
+                    ->get();
+
+        $leftJoin = DB::table('rooms')
+                ->leftJoin('reservations', 'rooms.id', '=', 'reservations.room_id')
+                ->leftJoin('cities', 'reservations.city_id', '=', 'cities.id')
+                ->selectRaw('room_size, price ,count(reservations.id) as reservations_count, cities.cities')
+                ->groupBy('room_size', 'price', 'cities.cities')
+                ->orderByRaw('count(reservations.id) DESC')
+                ->get();
+
+        $crossJoin = DB::table('rooms')
+                    ->crossJoin('cities')
+                    ->leftJoin('reservations', function($join){
+                        $join->on('rooms.id', '=', 'reservations.room_id')
+                        ->on('cities.id', '=', 'reservations.city_id'); 
+                    })
+                    ->selectRaw('room_size, COUNT(reservations.id) as reservation_count, cities.cities')
+                    ->groupBy('rooms.room_size','cities.cities')
+                    ->orderByRaw('room_size DESC')
+                    ->get();
+
+    dump($crossJoin);
+});

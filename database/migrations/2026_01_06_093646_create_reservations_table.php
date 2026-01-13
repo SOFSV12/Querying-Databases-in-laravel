@@ -17,6 +17,7 @@ return new class extends Migration
             $table->date('check_out');
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
+            $table->foreignId('city_id')->constrained('cities')->cascadeOnDelete();
             $table->timestamps();
         });
     }
