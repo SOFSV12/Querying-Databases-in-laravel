@@ -9,7 +9,11 @@ class Room extends Model
 {
     use HasFactory;
 
+    //the property below can be used to override the default table which model maps to 
     protected $table = 'rooms';
+    //protected $primaryKey = 'room_id'
+    //public $timestamps =false;
+    //protected $connection = 'sqlite'
 
     protected $fillable = [ 
         'room_number',
