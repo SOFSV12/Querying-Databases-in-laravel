@@ -10,10 +10,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 Route::get('/', function () {
    
+
+   
 });
-
-
-
 
 
 
@@ -386,3 +385,99 @@ Route::get('/joins-basic-to-advanced', function(){
 
     dump($crossJoin);
 });
+
+/**
+ * UNIONS
+ * These combine the results set of the result set of multiple tables 
+ */
+Route::get('/union', function (){
+    $users   = DB::table('users')
+               ->select('name');
+
+    $results = DB::table('cities')
+              ->select('cities')
+              ->union($users)
+              ->get();
+
+    $comments = DB::table('comments')
+                ->select('ratings as rating_or_room_id', 'id', DB::raw('"comments" as type_of_activity'))
+                ->where('user_id', 2);
+    
+    $reservations = DB::table('reservations')
+                ->select('room_id as rating_or_room_id', 'id', DB::raw('"reservations" as type_of_activity'))
+                ->union($comments)
+                ->where('user_id', 2)
+                ->get();
+
+        $orders = DB::table('orders')
+                    ->select('client_id', 'order_date as date', 'order_amount as amount', DB::raw('"order" as type'))
+                    ->where('user_id', 2);
+
+        $reunds = DB::table('refunds')
+                ->select('client_id', 'refund_date as date', 'refund_amount as amount', DB::raw('"refund" as type'))
+                ->union($comments)
+                ->where('user_id', 2)
+                ->get();
+
+    dump($reservations);
+});
+
+/**
+ * UPDATING RECORDS
+ * used the update helper, increments, decrements, 
+ */
+Route::get('/updating-records', function(){
+     $insert = DB::table('comments')
+              ->insert([
+                ['comments' => 'test created by me', 'ratings' => 5, 'user_id' => 3, 'created_at' => now(), 'updated_at' => now()->addSeconds(12000)],
+                ['comments' => 'test created by mandrakes', 'ratings' => 3, 'user_id' => 2, 'created_at' => now(), 'updated_at' => now()->addSeconds(180000)]
+              ]);
+
+    // $id = DB::table('users')->insertGetId(
+    //       ['email' => 'dexter@cartoonnetwork.com', 'name' => 'Dexter Labs', 'created_at' => now(), 'updated_at' => now()->addSeconds(180000), 'password' => 'HoYGhost']
+    //       );
+
+    // $affected = DB::table('users')
+    //             ->where('id', 6)
+    //             ->update(['name' => 'Dexter Laboratory']);
+
+    // $affected = DB::table('users')
+    //             ->where('id', 1)
+    //             ->update(['meta->settings->site_language' => 'fn']);
+
+    // $affected = DB::table('rooms')
+    //             ->increment('price', 100);
+
+    $affected = DB::table('rooms')
+                ->decrement('price', 200, ['description' => 'test description']);
+});
+
+/**
+ * DELETING RECORDS
+ * truncate set the table to start from ID of one and delete does not affect the table
+ */
+Route::get('/', function(){
+     $deleted = DB::table('cities')->delete();
+    //resets the database table to 
+    // $deleted = DB::table('cities')->truncate();
+    // $deleted = DB::table('users')->where('votes', '>', 100)->delete();
+
+    dump($deleted);
+});
+
+/**
+ * PESSIMISTIC LOCKING AND SHARED LOCK
+ * lockForUpdate method. A "for update" lock prevents the selected records from being modified or from being selected with another shared lock:
+ * A shared lock prevents the selected rows from being modified until your transaction is committed:
+ */
+Route::get('/pessimistic-locking', function(){
+    $sharedLock = DB::table('users')
+    ->where('votes', '>', 100)
+    ->sharedLock()
+    ->get();
+
+    $lockforUpdate = DB::table('users')
+    ->where('votes', '>', 100)
+    ->lockForUpdate()
+    ->get();
+})
