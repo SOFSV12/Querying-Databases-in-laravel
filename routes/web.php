@@ -480,4 +480,4 @@ Route::get('/pessimistic-locking', function(){
     ->where('votes', '>', 100)
     ->lockForUpdate()
     ->get();
-})
+});
