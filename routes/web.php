@@ -208,11 +208,17 @@ Route::get('/casts', function() {
         'last_commented_at' => 'datetime:m-d'
     ])->get();
 
+    //When using a subquery in a SELECT clause, it must return exactly one column and at most one row.
     //same thing
-    return User::select(['users.*', 'last_commented_at' => Comment::latest()
-    ->whereColumn('user_id', 'users.id')])->withCasts([
-        'last_commented_at' => 'datetime:m-d'
-    ])->get();
+    return User::select([
+                'users.*',
+                'last_commented_at' => Comment::select('created_at')
+                    ->whereColumn('users.id', 'comments.user_id')
+                    ->latest()
+                    ->take(1),
+            ])->withCasts([
+                'last_commented_at' => 'datetime:m-d',
+            ])->get();
 
 });
 
