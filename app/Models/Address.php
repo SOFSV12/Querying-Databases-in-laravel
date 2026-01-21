@@ -15,6 +15,7 @@ class Address extends Model
         'number',
         'street',
         'user_id',
+        'country'
     ];
 
     /**

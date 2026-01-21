@@ -18,6 +18,7 @@ class AddressFactory extends Factory
     {
         return [
             'number'  => fake()->numberBetween(1,10),
+            'country'  => fake()->country(),
             'street'  => fake()->address(),
             'user_id' => fake()->unique($reset = true)->numberBetween(1,3)
         ];
