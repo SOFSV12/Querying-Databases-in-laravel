@@ -36,7 +36,7 @@ class Country extends Model
         'user_id',    //foreign key on Address model
         'id',        //local key on country model
         'id'        //local key on user model
-         )->with('user');
+         );
     }
 
 
@@ -48,15 +48,19 @@ class Country extends Model
 
     public function allAddresses()
     {
-        return Address::whereIn('user_id', function($query) {
-            $query->select('id')
-                ->from('users')
-                ->where('country_id', $this->id);
-        })->with('user')->get();
+        // return Address::whereIn('user_id', function($query) {
+        //     $query->select('id')
+        //         ->from('users')
+        //         ->where('country_id', $this->id);
+        // })->with('user')->get();
 
         //utilizes relationships whereHas
-        //     return Address::whereHas('user', function($query) {
-        //     $query->where('country_id', $this->id);
-        // })->with('user')->get();
+        //how this works
+        //2. fetch addresses tthat have a relationship with users, check the country table for matching ID, then return  all users associated to the country
+            return Address::whereHas('user', function($query) {
+            $query->where('country_id', $this->id);
+        })->with('user')->get();
+
     }
+
 }

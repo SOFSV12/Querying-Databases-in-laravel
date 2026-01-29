@@ -6,6 +6,10 @@ use App\Models\Country;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+});
+
+
+Route::get('/fetch-address', function(){
     $country = Country::find(2);
 
     //using All Addresses provides us with all the matching addresses of the user
