@@ -40,11 +40,23 @@ class Country extends Model
 
     public function userComments()
     {
+        //🧱 Pure database-level logic
+        // return Comment::whereIn('user_id', function ($query) {
+        //     $query->select('id')
+        //     ->from('users')
+        //     ->where('country_id', $this->id);
+        // })->with('user')->get();
+
+
+        //utilizing a relationship
         return Comment::whereHas('user', function ($query) {
             $query->select('id')
             ->from('users')
-            ->where('id', $this->id);
+            ->where('country_id', $this->id);
         })->with('user')->get();
     }
+
+
+
 
 }

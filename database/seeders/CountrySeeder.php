@@ -19,7 +19,7 @@ class CountrySeeder extends Seeder
         //relationship in the Country Model, User calls relationship with Address model
         Country::factory()
         ->count(3) //create 3 countries
-        ->has(User::factory()->count(1) //create 1 users for each country
+        ->has(User::factory()->count(3) //create 1 users for each country
         ->has(Comment::factory()->count(5), 'comment'), 'citizens')->create();
     }
 }
