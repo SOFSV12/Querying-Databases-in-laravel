@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Address;
+use App\Models\Comment;
 use App\Models\User;
 use App\Models\Country;
 use Illuminate\Database\Seeder;
@@ -19,7 +19,7 @@ class CountrySeeder extends Seeder
         //relationship in the Country Model, User calls relationship with Address model
         Country::factory()
         ->count(3) //create 3 countries
-        ->has(User::factory()->count(5)
-        ->has(Address::factory()->count(1), 'address'), 'citizens')->create();
+        ->has(User::factory()->count(1) //create 1 users for each country
+        ->has(Comment::factory()->count(5), 'comment'), 'citizens')->create();
     }
 }

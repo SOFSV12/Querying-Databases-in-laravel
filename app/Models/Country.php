@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Country extends Model
@@ -27,36 +28,23 @@ class Country extends Model
         return $this->hasMany(User::class, 'country_id', 'id');
     }
 
-    public function addressOwner(): HasOneThrough
+    public function comment() :HasManyThrough
     {
-        return $this->hasOneThrough(
-        Address::class,  //model trying to be accessed
-        User::class,    //intermediate model
-        'country_id',  //foreign key on user model
-        'user_id',    //foreign key on Address model
-        'id',        //local key on country model
-        'id'        //local key on user model
-         )->with('user');
+        return $this->hasManyThrough(Comment::class, User::class);
     }
 
-
-    public function citizenAddresses()
+    public function Comments()
     {
-        return $this->citizens()->with('address')->get();
+        return $this->through('citizens')->has('comment');
     }
 
-
-    public function allAddresses()
+    public function userComments()
     {
-        return Address::whereIn('user_id', function($query) {
+        return Comment::whereHas('user', function ($query) {
             $query->select('id')
-                ->from('users')
-                ->where('country_id', $this->id);
+            ->from('users')
+            ->where('id', $this->id);
         })->with('user')->get();
-
-        //utilizes relationships whereHas
-        //     return Address::whereHas('user', function($query) {
-        //     $query->where('country_id', $this->id);
-        // })->with('user')->get();
     }
+
 }
