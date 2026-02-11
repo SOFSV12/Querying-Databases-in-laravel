@@ -1,32 +1,17 @@
 <?php
 
-use App\Models\Country;
+use App\Models\Post;
+use App\Models\Image;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $country = Country::find(2);
 
+    //fetch post image
+    $post = Post::find(1);
+    $image = $post->image;
 
-    /**
-     * using the relationships setup between country and user, user and comments
-     * check Country model for comments method
-     */
+    //fecth parent model, will return either a post or a user instance
+    $image = Image::find(1);
+    $imageable = $image->imageable;
 
-    dump($country->comments->toArray());
-
-    /**
-     * check comment method for regular setup if relationships do not exist
-    */
-    foreach($country->comments as $comment)
-    {
-            echo $comment->title . "<br> " . $comment->text . "<br> " . $comment->user_id . "<br> <br> ";
-    }
-
-    //fetching all comments that belong to a country
-    dump($country->userComments());
-
-    foreach($country->userComments() as $comment)
-    {
-        echo "username   :  " . $comment->user->name . "<br> <br> ";
-    }
 });
