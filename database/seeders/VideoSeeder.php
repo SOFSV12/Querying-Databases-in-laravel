@@ -3,18 +3,18 @@
 namespace Database\Seeders;
 
 use App\Models\Comment;
-use App\Models\Post;
+use App\Models\Video;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class PostSeeder extends Seeder
+class VideoSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Post::factory()->count(5)
+        Video::factory()->count(5)
         ->has(Comment::factory()->count(10))
         ->create();
     }

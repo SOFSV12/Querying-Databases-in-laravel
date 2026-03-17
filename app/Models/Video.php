@@ -6,20 +6,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-class Post extends Model
+class Video extends Model
 {
+    /** @use HasFactory<\Database\Factories\VideoFactory> */
     use HasFactory;
-    
+
     protected $fillable = [
         'title',
-        'body'
+        'url'
     ];
 
     /**
-     * Get all of the post's comments.
+     * Get all of the video's comments.
      */
     public function comments(): MorphMany
     {
-        return $this->morphMany(Comment::class, 'commentable')->chaperone();
+        return $this->morphMany(Comment::class, 'commentable');
     }
 }

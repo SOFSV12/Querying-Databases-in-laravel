@@ -17,7 +17,8 @@ class PostFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->randomElement(['NHL', 'NBA', 'NFL', 'Premier League', 'Formula 1', 'Moto GP'])
+            'title' => fake()->word(),
+            'body'  => fake()->paragraph()
         ];
     }
 }

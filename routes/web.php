@@ -1,18 +1,32 @@
 <?php
 
 use App\Models\Post;
-use App\Models\Image;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 
-    //fetch post image
-    $post = Post::find(1);
-    $image = $post->image;
+    //fetch post Comments
+    // $postComments = Post::find(1);
     
+    // foreach($postComments->comments as $postComment ){
+    //     echo $postComment->body . "<br>";
+    // }
 
-    //fecth parent model, will return either a post or a user instance
-    $image = Image::find(1);
-    $imageable = $image->imageable;
-    dd($imageable);
+ 
+    // $comment = Comment::find(1);
+    
+    // //fetches the parent of the individual comment 
+    // $commentable = $comment->commentable;
+
+    // dd($commentable);
+    
+    $posts = Post::with('comments')->get();
+
+    foreach ($posts as $post) {
+        foreach ($post->comments as $comment) {
+            echo $comment->commentable->title . "<br>" . "<br>";
+        }
+    } 
+
 });

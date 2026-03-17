@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Country>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Video>
  */
-class CountryFactory extends Factory
+class VideoFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,7 +17,8 @@ class CountryFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->country()
+            'title' => fake()->word(),
+            'url'   => fake()->url()
         ];
     }
 }
